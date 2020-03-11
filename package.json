@@ -17,5 +17,11 @@
   "bugs": {
     "url": "https://github.com/delmonicho/timeshift-deploy/issues"
   },
-  "homepage": "https://github.com/delmonicho/timeshift-deploy#readme"
+  "homepage": "https://github.com/delmonicho/timeshift-deploy#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "mongodb": "^3.5.4"
+  }
 }
