@@ -17,6 +17,8 @@ app.use(bodyParser.json())
 // app.get('/', (req, res) => {
 //     res.json({"message": "Welcome to TimeShift application. Write to-do list. Let TimeShift organize and keep track of all your tasks."});
 // });
+const posts = require('./app/routes/entry.routes');
+app.use('/routes/entry.routes', posts);
 
 // Handle production
 if(process.env.NODE_ENV === 'production') {
@@ -30,7 +32,7 @@ if(process.env.NODE_ENV === 'production') {
 // listen for requests
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log("TimeShift server is listening on port ${ PORT }");
+    console.log(`TimeShift server is listening on port ${ PORT } `);
 });
 
 // Configuring the database
