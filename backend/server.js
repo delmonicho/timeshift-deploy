@@ -26,9 +26,11 @@ if(process.env.NODE_ENV === 'production') {
   // Handle SPA
   app.get(/.*/, (req,res) => res.sendFile(__dirname + '/public/index.html'));
 }
+
 // listen for requests
-app.listen(3000, () => {
-    console.log("Server is listening on port 3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log("TimeShift server is listening on port ${ PORT }");
 });
 
 // Configuring the database
