@@ -13,10 +13,10 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // parse requests of content-type - application/json
 app.use(bodyParser.json())
 
-// define a simple route
-app.get('/', (req, res) => {
-    res.json({"message": "Welcome to TimeShift application. Write to-do list. Let TimeShift organize and keep track of all your tasks."});
-});
+// // define a simple route
+// app.get('/', (req, res) => {
+//     res.json({"message": "Welcome to TimeShift application. Write to-do list. Let TimeShift organize and keep track of all your tasks."});
+// });
 
 // Handle production
 if(process.env.NODE_ENV === 'production') {
