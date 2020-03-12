@@ -17,7 +17,7 @@
                           <div class="form-group">
                               <label for="todoitem">Task Item</label>
                               <input type="text" v-model="input" class="form-control" id="todoitem" placeholder="enter task" />
-                              <input type="number" v-model.number="hours" class="form-control" id="todohours" placeholder="enter hours to complete task" />
+                              <input type="number" v-model.number="hours" class="form-control" id="todohours" placeholder="enter hours to complete task" onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13 || event.charCode == 46) ? null : event.charCode >= 48 && event.charCode <= 57"/>
                           </div>
                           <b-button type="button" v-on:click="add()" class="btn btn-default" >Create</b-button>
                       </form>
@@ -41,7 +41,7 @@
         <b-button v-b-modal.add-modal>Add Calendar Event</b-button>
       </div>
       <!-- FULL CALENDAR COMPONENT -->
-      <full-calendar :events="events" @event-selected="openEditModal" defaultView="listWeek" />
+      <full-calendar :events="events" @event-selected="openEditModal" defaultView="agendaWeek" />
         <b-modal id="add-modal" title="Add Calendar Event" hide-footer ref="add-modal">
           <CalendarForm :edit="false" @eventSaved="closeModal()" ref="add-event"/>
         </b-modal>
@@ -91,8 +91,10 @@ export default {
       const res_data = [];
       //parse through response.data to save start,end,title, and id in a calendar array
       //for each observation in response.data
+      console.log("response.data: " + response.data);
       var obs;
       for (obs in response.data) {
+        console.log(response.data[obs].blocks.start);
         res_data[obs] = {
           "start": response.data[obs].blocks.start,
           "end": response.data[obs].blocks.end,
@@ -114,7 +116,11 @@ export default {
       this.$refs["edit-modal"].show();
     },
     async add() {
+      if(this.input.length == 0 || this.hours.length == 0){
+        alert("Please input a task to complete and estimated hours to completion.");
+      }else{
         this.todos.push([this.input,this.hours]);
+      }
     },
     async remove() {
         //fill in calendar with all tasks from todo list
@@ -126,9 +132,12 @@ export default {
           //store event in available space in calendar
 
           const task = this.todos.pop();
-          //let id = task.index;
-          let start = moment(currentDate.setHours(currentDate.getHours() + (Math.random()) * 10)).format("YYYY-MM-DD HH:mm:ss");
+          // TODO
+          // 1: prevent user from entering a negative number for est. hours
+          // 2: prevent user from entering an EMPTY form
+          let start = moment(currentDate.setHours(currentDate.getHours() + (Math.random()) * 120)).format("YYYY-MM-DD HH:mm:ss");
           let end = moment(currentDate.setHours(currentDate.getHours() + task[1])).format("YYYY-MM-DD HH:mm:ss");
+          console.log(task[1]);
           let title = task[0];
           //console.log(start,end,title);
           this.calendarEvent = { start, end, title };
@@ -137,6 +146,7 @@ export default {
           //reverse back to maintain order
           this.todos.reverse();
         }
+        // refresh page when task list empty
         if(this.todos.length == 0)
         {
           location.reload();

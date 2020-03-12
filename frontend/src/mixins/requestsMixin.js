@@ -53,6 +53,7 @@ var entry = {
 export const requestsMixin = {
   methods: {
     getCalendar() {
+      console.log("getCalendar(): ");
       return axios.get(`${APIURL}/entries`);
     },
     addCalendar(data) {

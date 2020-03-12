@@ -1,11 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const history = require('connect-history-api-fallback');
 // create express app
 const app = express();
 
 //enable cors
 app.use(cors());
+
+//enable connect history-fallback-api
+app.use(history());
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }))
