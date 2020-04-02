@@ -17,12 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // parse requests of content-type - application/json
 app.use(bodyParser.json())
 
-// // define a simple route
-// app.get('/', (req, res) => {
-//     res.json({"message": "Welcome to TimeShift application. Write to-do list. Let TimeShift organize and keep track of all your tasks."});
-// });
-const posts = require('./app/routes/entry.routes');
-app.use('/routes/entry.routes', posts);
+
 
 // Handle production
 if(process.env.NODE_ENV === 'production') {
@@ -31,6 +26,13 @@ if(process.env.NODE_ENV === 'production') {
 
   // Handle SPA
   app.get(/.*/, (req,res) => res.sendFile(__dirname + '/public/index.html'));
+} else {
+  // define a simple route
+  app.get('/', (req, res) => {
+      res.json({"message": "Welcome to TimeShift application. Write to-do list. Let TimeShift organize and keep track of all your tasks."});
+  });
+  const posts = require('./app/routes/entry.routes');
+  app.use('/routes/entry.routes', posts);
 }
 
 // listen for requests
