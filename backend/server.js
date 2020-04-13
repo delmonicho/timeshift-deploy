@@ -8,8 +8,7 @@ const app = express();
 //enable cors
 app.use(cors());
 
-//enable connect history-fallback-api
-app.use(history());
+
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -18,12 +17,17 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 
+const posts = require('./app/routes/entry.routes');
+app.use('/routes/entry.routes', posts);
 
 // Handle production
 if(process.env.NODE_ENV === 'production') {
   // Static folder
   app.use(express.static(__dirname + '/public/'));
-
+  //enable connect history-fallback-api
+  app.use(history());
+  //use twice according to docs
+  app.use(express.static(__dirname + '/public/'));
   // Handle SPA
   app.get(/.*/, (req,res) => res.sendFile(__dirname + '/public/index.html'));
 } else {
@@ -31,8 +35,7 @@ if(process.env.NODE_ENV === 'production') {
   app.get('/', (req, res) => {
       res.json({"message": "Welcome to TimeShift application. Write to-do list. Let TimeShift organize and keep track of all your tasks."});
   });
-  const posts = require('./app/routes/entry.routes');
-  app.use('/routes/entry.routes', posts);
+
 }
 
 // listen for requests
