@@ -29,7 +29,10 @@ if(process.env.NODE_ENV === 'production') {
   //use twice according to docs
   app.use(express.static(__dirname + '/public/'));
   // Handle SPA
-  app.get(/.*/, (req,res) => res.sendFile(__dirname + '/public/index.html'));
+  //app.get(/.*/, (req,res) => res.sendFile(__dirname + '/public/index.html'));
+  app.get('/', (req, res) => {
+      res.json({"message": "Welcome to TimeShift application. Write to-do list. Let TimeShift organize and keep track of all your tasks."});
+  });
 } else {
   // define a simple route
   app.get('/', (req, res) => {
