@@ -26,20 +26,16 @@ if(process.env.NODE_ENV === 'production') {
   app.use(express.static(__dirname + '/public/'));
   //enable connect history-fallback-api
   app.use(history());
-  //use twice according to docs
+  //2nd call to handle redirected requests
   app.use(express.static(__dirname + '/public/'));
-  // Handle SPA
+  // Handle SPA == BAD
   //app.get(/.*/, (req,res) => res.sendFile(__dirname + '/public/index.html'));
-  app.get('/', (req, res) => {
-      res.json({"message": "Welcome to TimeShift application. Write to-do list. Let TimeShift organize and keep track of all your tasks."});
-  });
-} else {
-  // define a simple route
-  app.get('/', (req, res) => {
-      res.json({"message": "Welcome to TimeShift application. Write to-do list. Let TimeShift organize and keep track of all your tasks."});
-  });
 
 }
+// define a simple route
+app.get('/', (req, res) => {
+      res.json({"message": "Welcome to TimeShift application. Write to-do list. Let TimeShift organize and keep track of all your tasks."});
+  });
 
 // listen for requests
 const PORT = process.env.PORT || 3000;
