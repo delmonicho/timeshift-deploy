@@ -53,7 +53,7 @@ var entry = {
 export const requestsMixin = {
   methods: {
     getCalendar() {
-      console.log("getCalendar(): ");
+      //console.log("getCalendar(): ");
       return axios.get(`${APIURL}/entries`);
     },
     addCalendar(data) {
@@ -67,8 +67,8 @@ export const requestsMixin = {
       return axios.post(`${APIURL}/entries`, entry);
     },
     editCalendar(data) {
-      console.log("editCalendar(data): data = ");
-      console.log(data);
+      //console.log("editCalendar(data): data = ");
+      //console.log(data);
       let { start, end, title, id} = data;
       entry.blocks.title = title;
       entry.blocks.start = start;

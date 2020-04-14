@@ -1,8 +1,10 @@
-<script> //This template page is the container for the calendar </script>
-<!-- MAKE SURE connected to mongoDB for next demo -->
-<!-- fix endpoints to all data in the dB -->
+<!-- This template page is the container for the calendar -->
 <template>
   <div class="page">
+    <!--ADD vuetify package for pretty alerts
+    <v-alert border="left" type="info" dense text dismissible>Welcome to timeShift, the premier calendar app that helps you optimally plan your schedule and fulfill your tasks.  To begin, please create tasks with a title and estimated hours to complete on the left.  Once you have input your tasks, simply click 'Fill Calendar' to place the tasks in the available spaces in your calendar.
+    </v-alert>
+  -->
     <div class="titles" style="text-align: center">
       <h1>TIMESHIFT</h1>
       <h3>Scheduling Optimization at its finest</h3>
@@ -31,7 +33,7 @@
                           {{ todo[0] }} - {{ todo[1] }} hours
                       </li>
                   </ul>
-                  <b-button type="button" v-on:click="remove()">Fill Calendar</b-button>
+                  <b-button type="button" v-on:click="remove()" v-bind:disabled="isButtonDisabled">Fill Calendar</b-button>
               </div>
           </div>
     </div>
@@ -68,14 +70,20 @@ export default {
   computed: {
     events() {
       return this.$store.state.events;
+    },
+    tasks() {
+      return this.$store.state.tasks;
     }
   },
   data() {
     return {
       calendarEvent: {},
       todos: [],
+      todosEventTimes: [],
       input: '',
-      hours:''
+      hours:'',
+      taskTimes:'',
+      isButtonDisabled:false
     };
   },
   async beforeMount() {
@@ -91,10 +99,10 @@ export default {
       const res_data = [];
       //parse through response.data to save start,end,title, and id in a calendar array
       //for each observation in response.data
-      console.log("response.data: " + response.data);
+      //console.log("response.data: " + response.data);
       var obs;
       for (obs in response.data) {
-        console.log(response.data[obs].blocks.start);
+        //console.log(response.data[obs].blocks.start);
         res_data[obs] = {
           "start": response.data[obs].blocks.start,
           "end": response.data[obs].blocks.end,
@@ -103,7 +111,12 @@ export default {
         }
       }
       this.$store.commit("setEvents", res_data);
-      console.log("getEvents(): " + res_data);
+      //console.log("getEvents(): " + res_data);
+      //disable 'fill calendar' button if task list empty
+      if(this.todos.length == 0) {
+        this.isButtonDisabled = true;
+      }
+      //alert("Welcome to timeShift, the premier calendar app that helps you optimally plan your schedule and fulfill your tasks.  To begin, please create tasks with a title and estimated hours to complete on the left.  Once you have input your tasks, simply click 'Fill Calendar' to place the tasks in the available spaces in your calendar.")
     },
     closeModal() {
       this.$refs["add-modal"].hide();
@@ -119,10 +132,25 @@ export default {
       if(this.input.length == 0 || this.hours.length == 0){
         alert("Please input a task to complete and estimated hours to completion.");
       }else{
+        //add todo to array
         this.todos.push([this.input,this.hours]);
+        //set tasks to save state of todo
+        this.$store.commit("setTasks", this.todos);
+        //clear input forms
+        this.input = "";
+        this.hours = "";
+        //enable 'fill calendar' button when tasks in list
+        this.isButtonDisabled = false;
       }
     },
     async remove() {
+        //alert if input forms not empty when 'fill calendar' button clicked
+        if (this.input != "" || this.hours != ""){
+          alert("There is text in the input forms.  Please confirm you are done creating tasks and the input forms are clear before clicking 'Fill Calendar'");
+          return; //exit function so user can edit input forms
+        }
+        //initialize temporary array when 'Fill Calendar' clicked
+        this.todosEventTimes = [];
         //fill in calendar with all tasks from todo list
         while (this.todos.length > 0)
         {
@@ -135,23 +163,35 @@ export default {
           // TODO
           // 1: prevent user from entering a negative number for est. hours
           // 2: prevent user from entering an EMPTY form
-          let start = moment(currentDate.setHours(currentDate.getHours() + (Math.random()) * 120)).format("YYYY-MM-DD HH:mm:ss");
+          let start = moment(currentDate.setHours(currentDate.getHours() + (Math.random()) * 12)).format("YYYY-MM-DD HH:mm:ss");
           let end = moment(currentDate.setHours(currentDate.getHours() + task[1])).format("YYYY-MM-DD HH:mm:ss");
-          console.log(task[1]);
+          //console.log(task[1]);
           let title = task[0];
-          //console.log(start,end,title);
+          //fill array to display task time designations/ reorder events
+          this.todosEventTimes.push([title,start,end]);
+
+          //add event to calendar
           this.calendarEvent = { start, end, title };
           await this.addCalendar(this.calendarEvent);
 
           //reverse back to maintain order
           this.todos.reverse();
         }
-        // refresh page when task list empty
+        // getCalendar() when task list empty
         if(this.todos.length == 0)
         {
-          location.reload();
+          //parse out individual task times to display to user
+          this.taskTimes = "";
+          const arrayLength = this.todosEventTimes.length;
+          for (var i = 0; i < arrayLength; i++) {
+            this.taskTimes +=  "\n" + this.todosEventTimes[i][0] + " from " + this.todosEventTimes[i][1] + " to " + this.todosEventTimes[i][2];
+          }
+          //Display events added without page reload
+          await this.getEvents();
+          //Highlight where task events added
+          alert("The Task List has been distributed in the calendar at the following times:" + this.taskTimes);
         }
-    }
+      }
   }
 };
 </script>

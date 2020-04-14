@@ -81,6 +81,9 @@ export default {
       //console.log("Check this form " + this.form + this.form.start + this.form.title);
       let start = this.form.start;
       let end = this.form.end;
+      if (end <= start) {
+        alert("End time is invalid, please confirm end time is after start time.");
+      }
       let title = this.form.title;
       let id = this.form.id;
       if (this.edit) {
@@ -110,7 +113,7 @@ export default {
       this.$store.commit("setEvents", res_data);
       //console.log("onSubmit(): " + res_data);
       //reload document page onSubmit()
-      location.reload();
+      //location.reload();
       this.$emit("eventSaved");
     },
     async deleteEvent(id) {
@@ -131,7 +134,7 @@ export default {
         }
       }
       this.$store.commit("setEvents", res_data);
-      console.log("deleteEvent(): " + res_data);
+      //console.log("deleteEvent(): " + res_data);
       this.$emit("eventSaved");
     }
   }
