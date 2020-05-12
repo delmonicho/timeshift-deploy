@@ -60,9 +60,9 @@ export const requestsMixin = {
       //when posting to calendar, can include all endpoints here
       //instead of posting data (the 5 variables used by the calendar), post the who request body
       let { start, end, title } = data;
-      entry.blocks.title = title;
-      entry.blocks.start = start;
-      entry.blocks.end = end;
+      entry.events.title = title;
+      entry.events.start = start;
+      entry.events.end = end;
 
       return axios.post(`${APIURL}/entries`, entry);
     },
@@ -70,9 +70,9 @@ export const requestsMixin = {
       //console.log("editCalendar(data): data = ");
       //console.log(data);
       let { start, end, title, id} = data;
-      entry.blocks.title = title;
-      entry.blocks.start = start;
-      entry.blocks.end = end;
+      entry.events.title = title;
+      entry.events.start = start;
+      entry.events.end = end;
       entry.id = id;
       return axios.put(`${APIURL}/entries/${entry.id}`, entry);
     },

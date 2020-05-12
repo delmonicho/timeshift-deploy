@@ -78,11 +78,11 @@ export default {
 
       this.form.start = moment(this.form.start).format("YYYY-MM-DD HH:mm:ss");
       this.form.end = moment(this.form.end).format("YYYY-MM-DD HH:mm:ss");
-      //console.log("Check this form " + this.form + this.form.start + this.form.title);
       let start = this.form.start;
       let end = this.form.end;
       if (end <= start) {
         alert("End time is invalid, please confirm end time is after start time.");
+        return;   //exit function while still in form if user tries time travel into the past
       }
       let title = this.form.title;
       let id = this.form.id;
