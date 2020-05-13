@@ -2,12 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const history = require('connect-history-api-fallback');
+// //add for user auth
+// const jwt = require('_helpers/jwt');
+// const errorHandler = require('_helpers/error-handler');
 // create express app
 const app = express();
 
 //enable cors
 app.use(cors());
-
 
 
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -16,9 +18,13 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // parse requests of content-type - application/json
 app.use(bodyParser.json())
 
+// // use JWT auth to secure the api
+// app.use(jwt());
 
 const posts = require('./app/routes/entry.routes');
 app.use('/routes/entry.routes', posts);
+
+// app.use(errorHandler);
 
 // Handle production
 if(process.env.NODE_ENV === 'production') {

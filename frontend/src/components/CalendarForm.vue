@@ -117,25 +117,34 @@ export default {
       this.$emit("eventSaved");
     },
     async deleteEvent(id) {
-      await this.deleteCalendar(id);
-      //TOBE: Functionalized
-      const response = await this.getCalendar();
-      //res_data is the reformatted json body to store calendar array of events for Vuex store
-      const res_data = [];
-      //parse through response.data to save start,end,title, and id in a calendar array
-      //for each observation in response.data
-      var obs;
-      for (obs in response.data) {
-        res_data[obs] = {
-          "start": response.data[obs].blocks.start,
-          "end": response.data[obs].blocks.end,
-          "title": response.data[obs].blocks.title,
-          "id": response.data[obs]._id
+      //add indicator when deleting an events
+      if (confirm("Are you sure you would like to delete this event from your calendar?"))
+      {
+        await this.deleteCalendar(id);
+        //TOBE: Functionalized
+        const response = await this.getCalendar();
+        //res_data is the reformatted json body to store calendar array of events for Vuex store
+        const res_data = [];
+        //parse through response.data to save start,end,title, and id in a calendar array
+        //for each observation in response.data
+        var obs;
+        for (obs in response.data) {
+          res_data[obs] = {
+            "start": response.data[obs].events.start,
+            "end": response.data[obs].events.end,
+            "title": response.data[obs].events.title,
+            "id": response.data[obs]._id
+          }
         }
+        this.$store.commit("setEvents", res_data);
+        //console.log("deleteEvent(): " + res_data);
+        this.$emit("eventSaved");
       }
-      this.$store.commit("setEvents", res_data);
-      //console.log("deleteEvent(): " + res_data);
-      this.$emit("eventSaved");
+      else
+      {
+        console.log("Event deletion cancelled.")
+      }
+
     }
   }
 };
