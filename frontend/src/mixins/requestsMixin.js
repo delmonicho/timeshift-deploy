@@ -64,7 +64,7 @@ export const requestsMixin = {
     addCalendar(data) {
       //when posting to calendar, can include all endpoints here
       //instead of posting data (the 5 variables used by the calendar), post the who request body
-      let { start, end, title } = data;
+      let { start, end, title, est } = data;
       //replace event values
       entry.events.title = title;
       entry.events.start = start;
@@ -78,6 +78,7 @@ export const requestsMixin = {
       // "due": {"date": "2019-23-19", "time": "T13:34:00.000"},
       // "est": 3000,
       entry.tasks.name = title;
+      entry.tasks.est = est;
       // TODO //parse out date from time
       // entry.tasks.due.date = due_date;
       // entry.tasks.due.time = due_time;

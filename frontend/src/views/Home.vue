@@ -54,7 +54,11 @@ action 'users/getAll' with the help of the vuex mapActions() function -->
                           {{ todo[0] }} - {{ todo[1] }} hours
                       </li>
                   </ul>
-                  <b-button type="button" v-on:click="remove()" v-bind:disabled="isButtonDisabled">Fill Calendar</b-button>
+                  <b-button type="button" v-on:click="remove()" v-bind:disabled="isButtonDisabled">Optimize Calendar</b-button>
+                  <div class="row" style="padding:10px 40px 60px 155px;">
+                    <b-button type="button" v-on:click="accept()" v-bind:disabled="approvalReq">Accept</b-button>
+                    <b-button type="button" v-on:click="decline()" v-bind:disabled="approvalReq">Decline</b-button>
+                  </div>
               </div>
           </div>
     </div>
@@ -110,11 +114,12 @@ export default {
       calendarEvent: {},      //controls data for calendar forms
       todos: [],              //controls todos task list
       tempTodos: [],          //holds todos for redistribution
-      algTodosTimes: [],      //holds todos title,start time,end time to display to user
+      //algTodosTimes: [],      //holds todos title,start time,end time to display to user
       input: '',              //string for task title input form
       hours:'',               //number for task estimated hours of completion
       taskTimes:'',           //string to hold dateTime
       isButtonDisabled:false, //bool to check if input forms in process of editing
+      approvalReq:true,
       consent:true            //bool to check if user satisfied with task filling
     };
   },
@@ -156,6 +161,42 @@ export default {
       }
       //alert("Welcome to timeShift, the premier calendar app that helps you optimally plan your schedule and fulfill your tasks.  To begin, please create tasks with a title and estimated hours to complete on the left.  Once you have input your tasks, simply click 'Fill Calendar' to place the tasks in the available spaces in your calendar.")
     },
+    async getAlgTimes ()
+    {
+      const response = await this.getCalendar();
+      //calc_data is the reformatted json body to store calendar array of events for Vuex store
+      let calc_data = [];
+      var obs, obs_start, obs_end, obs_title, obs_id, time_diff, tempInput, tempHours;
+      //get tempInput and tempHours to compare and find tasks just added
+      for (var t=0; t < this.tempTodos.length; t++)
+      {
+        tempInput = this.tempTodos[t][0];
+        tempHours = this.tempTodos[t][1];
+        //console.log(tempInput,tempHours);
+        for (obs in response.data) {
+          obs_start = response.data[obs].events.start;
+          obs_end = response.data[obs].events.end;
+          obs_title = response.data[obs].events.title;
+          obs_id = response.data[obs]._id;
+          //parse start and end time to calc time_diff in float hours
+          //console.log(obs_start + obs_end);
+          //if this.tempTodos[0] = response.data[obs].events.title && (response.data[obs].events.end - response.data[obs].events.start) - this.tempTodos[1] < 0.1
+          if (tempInput == obs_title)
+          {
+            calc_data[obs] = {
+              "start": obs_start,
+              "end": obs_end,
+              "title": obs_title,
+              "id": obs_id
+            }
+          }
+
+        }
+      }
+      //parse through response.data to save start,end,title, and id in a calendar array
+      this.algTodosTimes = calc_data;
+
+    },
     closeModal() {
       this.$refs["add-modal"].hide();
       this.$refs["edit-modal"].hide();
@@ -186,7 +227,7 @@ export default {
     async remove() {
         //alert if input forms not empty when 'fill calendar' button clicked
         if (this.input != "" || this.hours != ""){
-          alert("There is text in the input forms.  Please confirm you are done creating tasks and the input forms are clear before clicking 'Fill Calendar'");
+          alert("There is text in the input forms.  Please confirm you are done creating tasks and the input forms are clear before clicking 'Optimize Calendar'");
           return; //exit function so user can edit input forms
         }
         //initialize temporary array when 'Fill Calendar' clicked
@@ -196,30 +237,28 @@ export default {
         {
           //reverse list order to pop off first item in list
           this.todos.reverse();
-          // TODO
-          //store event in available space in calendar
           const task = this.todos.pop();
-
-          //parse hours input to get hours and minutes to add to dateTime
-          let parseHour = Math.floor(task[1]);
-          let parseMinutes = (task[1] % 1) * 60;
-          //console.log("parseHour=" + parseHour + "\tparseMinutes = " + parseMinutes);
-          //TODO constrain start time to not begin during midnight hours
-          let start = moment(currentDate.setHours(currentDate.getHours() + (Math.random()) * 120)).format("YYYY-MM-DD HH:mm:ss");
+          //init start/end times
+          let start = moment(currentDate.setHours(currentDate.getHours())).format("YYYY-MM-DD HH:mm:ss");
           let end = moment(currentDate.setHours(currentDate.getHours()))
-            .add({hours:parseHour,minutes:parseMinutes})
             .format("YYYY-MM-DD HH:mm:ss");
 
-          //console.log("start =" + start + "\tend " + end);
           let title = task[0];
+          let est = task[1];
           //fill array to display task time designations/ reorder events
-          this.algTodosTimes.push([title,start,end]);
+          //this.algTodosTimes.push([title,start,end]);
           //fill temp array to refill todos if user unsatisfied with task distribution
-          this.tempTodos.push([title,task[1]]);
-          //add event to calendar
-          this.calendarEvent = { start, end, title };
-          await this.addCalendar(this.calendarEvent);
+          this.tempTodos.push([title,est]);
+
           //console.log(this.calendarEvent);
+          //TODO
+          //send initial calendar event info to backend
+          //add event to calendar
+          this.calendarEvent = { start, end, title, est };
+          await this.addCalendar(this.calendarEvent);
+          //backend computes start/end time based on est. hours
+          //backend posts to db
+
 
           //reverse back to maintain order
           this.todos.reverse();
@@ -227,56 +266,95 @@ export default {
         // getCalendar() when task list empty
         if(this.todos.length == 0)
         {
+          //once task list empty and db filled with new tasks
+          //loop thru tasks just added, get their start and end times calculated in backend
+          this.getAlgTimes();
+          // console.log(this.algTodosTimes);
+          // let alertTitle, alertStart, alertEnd;
+          // this.taskTimes = "";
+          // //console.log(calc_times);
+          // const arrayLength = this.algTodosTimes.length;
+          //
+          // for (var i = 0; i < arrayLength; i++)
+          // {
+          //   let alertTitle = this.algTodosTimes[i][0];
+          //   let alertStart = this.algTodosTimes[i][1];
+          //   let alertEnd = this.algTodosTimes[i][2];
+          //   this.taskTimes +=  "\n" + alertTitle + " from " + alertStart + " to " + alertEnd;
+          // }
+          //then send alert to user of these task times
           //parse out individual task times to display to user
-          this.taskTimes = "";
-          const arrayLength = this.algTodosTimes.length;
-          let alertTitle, alertStart, alertEnd;
-          for (var i = 0; i < arrayLength; i++)
-          {
-            let alertTitle = this.algTodosTimes[i][0];
-            let alertStart = this.algTodosTimes[i][1];
-            let alertEnd = this.algTodosTimes[i][2];
-            this.taskTimes +=  "\n" + alertTitle + " from " + alertStart + " to " + alertEnd;
-          }
+
+          //2 buttons enable at this point, accept or decline
+          this.approvalReq = false;
+          //if user hits accept, the tasks stay in the db and are displayed in the calendar.
+          //else 'decline', the tasks are deleted from the db by their respective ids
+
+          //TODO delete these comments
+          // //Highlight where task events added
+          // alert("The Task List has been distributed in the calendar at the following time(s):" + this.taskTimes);
+          // //Check here if user happy with distribution
+          // if (confirm("Click 'OK' if you are satisfied with the calendar.  To redistribute the tasks in different times, click 'Cancel' and 'Fill Calendar' again."))
+          // {
+          //   this.consent = true;   //user happy with distribution of tasks
           //Display events added without page reload
           await this.getEvents();
+          console.log(this.algTodosTimes);
+          let alertTitle, alertStart, alertEnd;
+          this.taskTimes = "";
+          //console.log(calc_times);
+          const arrayLength = this.algTodosTimes.length;
+
+          for (var i = 0; i < arrayLength; i++)
+          {
+            if (this.algTodosTimes[i] != null)
+            {
+              alertTitle = this.algTodosTimes[i]['title'];
+              alertStart = this.algTodosTimes[i]['start'];
+              alertEnd = this.algTodosTimes[i]['end'];
+              this.taskTimes +=  "\n" + alertTitle + " from " + alertStart + " to " + alertEnd;
+            }
+
+          }
           //Highlight where task events added
           alert("The Task List has been distributed in the calendar at the following time(s):" + this.taskTimes);
-          //Check here if user happy with distribution
-          if (confirm("Click 'OK' if you are satisfied with the calendar.  To redistribute the tasks in different times, click 'Cancel' and 'Fill Calendar' again."))
+
+        }
+      },
+      async accept() {
+        this.consent = true;   //user happy with distribution of tasks
+        this.approvalReq = true;
+        this.algTodosTimes = [];
+        //Display events added without page reload
+        await this.getEvents();
+      },
+      async decline() {
+        //repopulate the task lists and delete the tasks from the db
+        let tempInput = '';
+        let tempHours = '';
+        let alertId;
+        this.consent = false;  //user wishes to redistribute the tasks
+        for (var t=0; t < this.tempTodos.length; t++)
+        {
+          tempInput = this.tempTodos[t][0];
+          tempHours = this.tempTodos[t][1];
+          this.todos.push([tempInput,tempHours]); //this should display the tasks list again
+        }
+        //reset tempTodos
+        this.tempTodos = [];
+        for (var j=0; j < this.algTodosTimes.length; j++)
+        {
+          if (this.algTodosTimes[j] != null)
           {
-            this.consent = true;   //user happy with distribution of tasks
-            // for (var k=0; k < this.algTodosTimes.length; k++)
-            // {
-            //   title = this.algTodosTimes[0];
-            //   start = this.algTodosTimes[1];
-            //   end = this.algTodosTimes[2];
-            //   //add event to calendar
-            //   this.calendarEvent = { start, end, title };
-            //   await this.addCalendar(this.calendarEvent);
-            // }
-          }
-          else
-          {
-            let tempInput = '';
-            let tempHours = '';
-            this.consent = false;  //user wishes to redistribute the tasks
-            for (var t=0; t < this.tempTodos.length; t++)
-            {
-              tempInput = this.tempTodos[0];
-              tempHours = this.tempTodos[1];
-              this.todos.push([tempInput,tempHours]); //this should display the tasks list again
-            }
-            //this.todos = this.tempTodos;
-            this.isButtonDisabled = false;
-            console.log(this.todos);
+            alertId = this.algTodosTimes[j]['id'];
+            await this.deleteCalendar(alertId);
           }
         }
+        //this.todos = this.tempTodos;
+        this.isButtonDisabled = false;
+        this.approvalReq = true;
+        await this.getEvents();
       }
-      // ,
-      // async redistribute() {
-      //
-      // }
   }
 };
 </script>

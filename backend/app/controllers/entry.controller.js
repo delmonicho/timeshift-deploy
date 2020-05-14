@@ -1,5 +1,8 @@
 const Entry = require('../models/entry.model.js');
 const mongoose = require('mongoose');
+var moment = require('moment');
+
+
 // Create and Save a new Entry
 exports.create = (req, res) => {
     // Validate request
@@ -18,7 +21,26 @@ exports.create = (req, res) => {
         users: req.body.users || "Incomplete users"
     });
     // TODO: add in random algorithm to calculate task times here
-     
+     let currentDate = new Date();
+     //parse hours input to get hours and minutes to add to dateTime
+     let est = entry.tasks.est;
+     let parseHour = Math.floor(est);
+     let parseMinutes = (est % 1) * 60;
+     //console.log("parseHour=" + parseHour + "\tparseMinutes = " + parseMinutes);
+     //constrain start time to not begin during midnight hours
+     var start,start_hour;
+     do {
+       start = moment(currentDate.setHours(currentDate.getHours() + (Math.random()) * 140)).startOf('hour').format("YYYY-MM-DD HH:mm:ss");
+
+       start_hour = moment(start).get('hour');
+     } while(start_hour < 8 || start_hour > 20);
+
+
+     var end = moment(start).add({hours:parseHour,minutes:parseMinutes})
+       .format("YYYY-MM-DD HH:mm:ss");
+    entry.events.start = start;
+    entry.events.end = end;
+    //console.log(entry);
     // Save Entry in the database
     entry.save()
     .then(data => {
