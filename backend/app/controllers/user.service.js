@@ -1,8 +1,6 @@
 const config = require('../../config/database.config');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-// TODO fix these
-//const db = require('_helpers/db');
 const User = require('../models/user.model');
 
 module.exports = {

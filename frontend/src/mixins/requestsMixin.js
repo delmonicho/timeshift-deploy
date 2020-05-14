@@ -1,5 +1,7 @@
 const APIURL = "";
 const axios = require("axios");
+// import { userService } from '../_services';
+import {authHeader } from '../_helpers';
 
 var entry = {
   "blocks":
@@ -54,7 +56,10 @@ export const requestsMixin = {
   methods: {
     getCalendar() {
       //console.log("getCalendar(): ");
-      return axios.get(`${APIURL}/entries`);
+      return axios.get(`${APIURL}/entries`, {
+        //send jwt header to make CRUD ops
+        headers: authHeader()
+      });
     },
     addCalendar(data) {
       //when posting to calendar, can include all endpoints here
@@ -78,7 +83,10 @@ export const requestsMixin = {
       // entry.tasks.due.time = due_time;
       // entry.tasks.est =
 
-      return axios.post(`${APIURL}/entries`, entry);
+      return axios.post(`${APIURL}/entries`, entry, {
+        //send jwt header to make CRUD ops
+        headers: authHeader()
+      });
     },
     editCalendar(data) {
       //console.log("editCalendar(data): data = ");
@@ -93,10 +101,16 @@ export const requestsMixin = {
       entry.blocks.start = start;
       entry.blocks.end = end;
       entry.id = id;
-      return axios.put(`${APIURL}/entries/${entry.id}`, entry);
+      return axios.put(`${APIURL}/entries/${entry.id}`, entry, {
+        //send jwt header to make CRUD ops
+        headers: authHeader()
+      });
     },
     deleteCalendar(id) {
-      return axios.delete(`${APIURL}/entries/${id}`);
+      return axios.delete(`${APIURL}/entries/${id}`, {
+        //send jwt header to make CRUD ops
+        headers: authHeader()
+      });
     }
   }
 };

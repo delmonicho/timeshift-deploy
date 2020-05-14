@@ -1,14 +1,35 @@
 <!-- This template page is the container for the calendar -->
+<!-- The home page component is displayed after signing in to the application,
+it shows the signed in user's name plus a list of all users in the tutorial app.
+The users are loaded into the vuex state by calling this.getAllUsers(); from the
+created() vue lifecycle hook, the getAllUsers() method is mapped to the vuex
+action 'users/getAll' with the help of the vuex mapActions() function -->
 <template>
   <div class="page">
-    <!--ADD vuetify package for pretty alerts
-    <v-alert border="left" type="info" dense text dismissible>Welcome to timeShift, the premier calendar app that helps you optimally plan your schedule and fulfill your tasks.  To begin, please create tasks with a title and estimated hours to complete on the left.  Once you have input your tasks, simply click 'Fill Calendar' to place the tasks in the available spaces in your calendar.
-    </v-alert>
-  -->
     <div class="titles" style="text-align: center">
-      <h1>TIMESHIFT</h1>
+      <h1>timeShift</h1>
       <h3>Scheduling Optimization at its finest</h3>
     </div>
+    <!-- Login/Welcome -->
+    <div class="container" style="margin-top: 30px">
+        <h2>Aloha {{account.user.firstName}}!</h2>
+        <h6>Begin optimizing your schedule by entering tasks below!!</h6>
+        <!-- <h3>Users from secure api end point:</h3>
+        <em v-if="users.loading">Loading users...</em>
+        <span v-if="users.error" class="text-danger">ERROR: {{users.error}}</span> -->
+        <!-- <ul v-if="users.items">
+            <li v-for="user in users.items" :key="user.id">
+                {{user.firstName + ' ' + user.lastName}}
+                <span v-if="user.deleting"><em> - Deleting...</em></span>
+                <span v-else-if="user.deleteError" class="text-danger"> - ERROR: {{user.deleteError}}</span>
+                <span v-else> - <a @click="deleteUser(user.id)" class="text-danger">Delete</a></span>
+            </li>
+        </ul> -->
+        <p>
+            <router-link to="/login">Logout</router-link>
+        </p>
+    </div>
+    <!-- Task Creation and List -->
     <div style="width: 100%;  padding: 80px 20px 40px 40px; text-align: center;">
           <div class="row">
             <!-- CREATE TASK INPUT FORMS  -->
@@ -59,6 +80,8 @@
 // @ is an alias to /src
 import CalendarForm from "@/components/CalendarForm.vue";
 import { requestsMixin } from "../mixins/requestsMixin";
+import { mapState, mapActions } from 'vuex';
+// import { userService } from '../_services';
 import * as moment from "moment";
 var currentDate = new Date();
 export default {
@@ -68,12 +91,19 @@ export default {
   },
   mixins: [requestsMixin],
   computed: {
+    ...mapState({
+        account: state => state.account,
+        users: state => state.users.all
+    }),
     events() {
       return this.$store.state.events;
     },
     tasks() {
       return this.$store.state.tasks;
     }
+  },
+  created() {
+    this.getAllUsers();
   },
   data() {
     return {
@@ -89,9 +119,15 @@ export default {
     };
   },
   async beforeMount() {
+    // TODO
+    //use authHeader and func handleResponse from user.service to get Bearer jwt token to get events
     await this.getEvents();
   },
   methods: {
+    ...mapActions('users', {
+      getAllUsers: 'getAll',
+      deleteUser: 'delete'
+    }),
     async getEvents() {
       const response = await this.getCalendar();
       //Vuex store is expecting events to look like original tutorial version
@@ -245,6 +281,9 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.page {
+  width: 1000px;
+}
 .buttons {
   margin-bottom: 10px;
 }
