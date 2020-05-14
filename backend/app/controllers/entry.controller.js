@@ -17,7 +17,8 @@ exports.create = (req, res) => {
         tasks: req.body.tasks || "Incomplete tasks",
         users: req.body.users || "Incomplete users"
     });
-
+    // TODO: add in random algorithm to calculate task times here
+     
     // Save Entry in the database
     entry.save()
     .then(data => {

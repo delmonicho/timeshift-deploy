@@ -168,7 +168,8 @@ export default {
           let parseHour = Math.floor(task[1]);
           let parseMinutes = (task[1] % 1) * 60;
           //console.log("parseHour=" + parseHour + "\tparseMinutes = " + parseMinutes);
-          let start = moment(currentDate.setHours(currentDate.getHours() + (Math.random()) * 12)).format("YYYY-MM-DD HH:mm:ss");
+          //TODO constrain start time to not begin during midnight hours
+          let start = moment(currentDate.setHours(currentDate.getHours() + (Math.random()) * 120)).format("YYYY-MM-DD HH:mm:ss");
           let end = moment(currentDate.setHours(currentDate.getHours()))
             .add({hours:parseHour,minutes:parseMinutes})
             .format("YYYY-MM-DD HH:mm:ss");

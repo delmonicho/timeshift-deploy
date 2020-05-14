@@ -3,14 +3,13 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const history = require('connect-history-api-fallback');
 // //add for user auth
-// const jwt = require('_helpers/jwt');
-// const errorHandler = require('_helpers/error-handler');
+const jwt = require('./_helpers/jwt');
+const errorHandler = require('./_helpers/error-handler');
 // create express app
 const app = express();
 
 //enable cors
 app.use(cors());
-
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -19,12 +18,14 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 // // use JWT auth to secure the api
-// app.use(jwt());
+app.use(jwt());
 
+// api routes
 const posts = require('./app/routes/entry.routes');
 app.use('/routes/entry.routes', posts);
+app.use('/users', require('./app/controllers/user.controller'));
 
-// app.use(errorHandler);
+app.use(errorHandler);
 
 // Handle production
 if(process.env.NODE_ENV === 'production') {
@@ -68,7 +69,7 @@ mongoose.connect(dbConfig.url, {
 
 // ........
 
-// Require Events routes
+// Require Entries routes
 require('./app/routes/entry.routes.js')(app);
 
 // ........
