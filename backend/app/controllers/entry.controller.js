@@ -20,13 +20,12 @@ exports.create = (req, res) => {
         tasks: req.body.tasks || "Incomplete tasks",
         users: req.body.users || "Incomplete users"
     });
-    // TODO: add in random algorithm to calculate task times here
+    // add in random algorithm to calculate task times here
      let currentDate = new Date();
      //parse hours input to get hours and minutes to add to dateTime
      let est = entry.tasks.est;
      let parseHour = Math.floor(est);
      let parseMinutes = (est % 1) * 60;
-     //console.log("parseHour=" + parseHour + "\tparseMinutes = " + parseMinutes);
      //constrain start time to not begin during midnight hours
      var start,start_hour;
      do {
@@ -40,7 +39,6 @@ exports.create = (req, res) => {
        .format("YYYY-MM-DD HH:mm:ss");
     entry.events.start = start;
     entry.events.end = end;
-    //console.log(entry);
     // Save Entry in the database
     entry.save()
     .then(data => {

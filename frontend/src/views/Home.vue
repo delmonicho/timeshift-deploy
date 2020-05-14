@@ -8,23 +8,14 @@ action 'users/getAll' with the help of the vuex mapActions() function -->
   <div class="page">
     <div class="titles" style="text-align: center">
       <h1>timeShift</h1>
+      <img src="../assets/tS_logo.png"/>
       <h3>Scheduling Optimization at its finest</h3>
     </div>
     <!-- Login/Welcome -->
     <div class="container" style="margin-top: 30px">
         <h2>Aloha {{account.user.firstName}}!</h2>
         <h6>Begin optimizing your schedule by entering tasks below!!</h6>
-        <!-- <h3>Users from secure api end point:</h3>
-        <em v-if="users.loading">Loading users...</em>
-        <span v-if="users.error" class="text-danger">ERROR: {{users.error}}</span> -->
-        <!-- <ul v-if="users.items">
-            <li v-for="user in users.items" :key="user.id">
-                {{user.firstName + ' ' + user.lastName}}
-                <span v-if="user.deleting"><em> - Deleting...</em></span>
-                <span v-else-if="user.deleteError" class="text-danger"> - ERROR: {{user.deleteError}}</span>
-                <span v-else> - <a @click="deleteUser(user.id)" class="text-danger">Delete</a></span>
-            </li>
-        </ul> -->
+
         <p>
             <router-link to="/login">Logout</router-link>
         </p>
@@ -141,11 +132,8 @@ export default {
       //res_data is the reformatted json body to store calendar array of events for Vuex store
       const res_data = [];
       //parse through response.data to save start,end,title, and id in a calendar array
-      //for each observation in response.data
-      //console.log("response.data: " + response.data);
       var obs;
       for (obs in response.data) {
-        //console.log(response.data[obs].blocks.start);
         res_data[obs] = {
           "start": response.data[obs].events.start,
           "end": response.data[obs].events.end,
@@ -154,12 +142,10 @@ export default {
         }
       }
       this.$store.commit("setEvents", res_data);
-      //console.log("getEvents(): " + res_data);
       //disable 'fill calendar' button if task list empty
       if(this.todos.length == 0) {
         this.isButtonDisabled = true;
       }
-      //alert("Welcome to timeShift, the premier calendar app that helps you optimally plan your schedule and fulfill your tasks.  To begin, please create tasks with a title and estimated hours to complete on the left.  Once you have input your tasks, simply click 'Fill Calendar' to place the tasks in the available spaces in your calendar.")
     },
     async getAlgTimes ()
     {
@@ -172,15 +158,12 @@ export default {
       {
         tempInput = this.tempTodos[t][0];
         tempHours = this.tempTodos[t][1];
-        //console.log(tempInput,tempHours);
         for (obs in response.data) {
           obs_start = response.data[obs].events.start;
           obs_end = response.data[obs].events.end;
           obs_title = response.data[obs].events.title;
           obs_id = response.data[obs]._id;
           //parse start and end time to calc time_diff in float hours
-          //console.log(obs_start + obs_end);
-          //if this.tempTodos[0] = response.data[obs].events.title && (response.data[obs].events.end - response.data[obs].events.start) - this.tempTodos[1] < 0.1
           if (tempInput == obs_title)
           {
             calc_data[obs] = {
@@ -246,11 +229,9 @@ export default {
           let title = task[0];
           let est = task[1];
           //fill array to display task time designations/ reorder events
-          //this.algTodosTimes.push([title,start,end]);
           //fill temp array to refill todos if user unsatisfied with task distribution
           this.tempTodos.push([title,est]);
 
-          //console.log(this.calendarEvent);
           //TODO
           //send initial calendar event info to backend
           //add event to calendar
@@ -269,40 +250,20 @@ export default {
           //once task list empty and db filled with new tasks
           //loop thru tasks just added, get their start and end times calculated in backend
           this.getAlgTimes();
-          // console.log(this.algTodosTimes);
-          // let alertTitle, alertStart, alertEnd;
-          // this.taskTimes = "";
-          // //console.log(calc_times);
-          // const arrayLength = this.algTodosTimes.length;
-          //
-          // for (var i = 0; i < arrayLength; i++)
-          // {
-          //   let alertTitle = this.algTodosTimes[i][0];
-          //   let alertStart = this.algTodosTimes[i][1];
-          //   let alertEnd = this.algTodosTimes[i][2];
-          //   this.taskTimes +=  "\n" + alertTitle + " from " + alertStart + " to " + alertEnd;
-          // }
+
           //then send alert to user of these task times
           //parse out individual task times to display to user
 
           //2 buttons enable at this point, accept or decline
           this.approvalReq = false;
-          //if user hits accept, the tasks stay in the db and are displayed in the calendar.
+          //if user hits 'accept', the tasks stay in the db and are displayed in the calendar.
           //else 'decline', the tasks are deleted from the db by their respective ids
 
-          //TODO delete these comments
-          // //Highlight where task events added
-          // alert("The Task List has been distributed in the calendar at the following time(s):" + this.taskTimes);
-          // //Check here if user happy with distribution
-          // if (confirm("Click 'OK' if you are satisfied with the calendar.  To redistribute the tasks in different times, click 'Cancel' and 'Fill Calendar' again."))
-          // {
-          //   this.consent = true;   //user happy with distribution of tasks
           //Display events added without page reload
           await this.getEvents();
           console.log(this.algTodosTimes);
           let alertTitle, alertStart, alertEnd;
           this.taskTimes = "";
-          //console.log(calc_times);
           const arrayLength = this.algTodosTimes.length;
 
           for (var i = 0; i < arrayLength; i++)

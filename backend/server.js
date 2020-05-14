@@ -7,7 +7,6 @@ const jwt = require('./_helpers/jwt');
 const errorHandler = require('./_helpers/error-handler');
 // create express app
 const app = express();
-
 //enable cors
 app.use(cors());
 
@@ -71,5 +70,4 @@ mongoose.connect(dbConfig.url, {
 
 // Require Entries routes
 require('./app/routes/entry.routes.js')(app);
-
 // ........

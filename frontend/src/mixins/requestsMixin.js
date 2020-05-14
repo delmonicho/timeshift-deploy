@@ -1,6 +1,5 @@
 const APIURL = "";
 const axios = require("axios");
-// import { userService } from '../_services';
 import {authHeader } from '../_helpers';
 
 var entry = {
@@ -19,7 +18,6 @@ var entry = {
     "start": "start",
     "end": "end",
     "uid": "user",
-    //"lists": ["listid1","listid2"],
     "recurring": "NA"
   },
   "lists":
@@ -74,15 +72,8 @@ export const requestsMixin = {
       entry.blocks.start = start;
       entry.blocks.end = end;
       //replace task values
-      // "name": "Final CS461 Deliverable",
-      // "due": {"date": "2019-23-19", "time": "T13:34:00.000"},
-      // "est": 3000,
       entry.tasks.name = title;
       entry.tasks.est = est;
-      // TODO //parse out date from time
-      // entry.tasks.due.date = due_date;
-      // entry.tasks.due.time = due_time;
-      // entry.tasks.est =
 
       return axios.post(`${APIURL}/entries`, entry, {
         //send jwt header to make CRUD ops
@@ -90,8 +81,6 @@ export const requestsMixin = {
       });
     },
     editCalendar(data) {
-      //console.log("editCalendar(data): data = ");
-      //console.log(data);
       let { start, end, title, id} = data;
       //replace event values
       entry.events.title = title;

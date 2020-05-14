@@ -70,13 +70,6 @@ export default {
           // Only executes when validation passes
             this.submitted = true;
             this.register(this.user);
-            //$validator deprecated and removed in vee-validator 3.0
-
-            // this.$validator.validate().then(valid => {
-            //     if (valid) {
-            //         this.register(this.user);
-            //     }
-            // });
         }
     }
 };

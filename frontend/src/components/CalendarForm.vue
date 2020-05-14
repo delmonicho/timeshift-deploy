@@ -1,4 +1,3 @@
-<!-- TODO: make drag and drop change database entry on drop OR prevent drag -->
 <template>
   <div>
     <ValidationObserver ref="observer" v-slot="{ invalid }">
@@ -100,7 +99,6 @@ export default {
       //res_data is the reformatted json body to store calendar array of events for Vuex store
       const res_data = [];
       //parse through response.data to save start,end,title, and id in a calendar array
-      //for each observation in response.data
       var obs;
       for (obs in response.data) {
         res_data[obs] = {
@@ -111,9 +109,6 @@ export default {
         }
       }
       this.$store.commit("setEvents", res_data);
-      //console.log("onSubmit(): " + res_data);
-      //reload document page onSubmit()
-      //location.reload();
       this.$emit("eventSaved");
     },
     async deleteEvent(id) {
@@ -126,7 +121,6 @@ export default {
         //res_data is the reformatted json body to store calendar array of events for Vuex store
         const res_data = [];
         //parse through response.data to save start,end,title, and id in a calendar array
-        //for each observation in response.data
         var obs;
         for (obs in response.data) {
           res_data[obs] = {
@@ -137,7 +131,6 @@ export default {
           }
         }
         this.$store.commit("setEvents", res_data);
-        //console.log("deleteEvent(): " + res_data);
         this.$emit("eventSaved");
       }
       else
